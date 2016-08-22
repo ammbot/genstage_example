@@ -5,7 +5,8 @@ defmodule Ku do
     import Supervisor.Spec, warn: false
 
     children = [
-      worker(Publisher, [])
+      worker(Publisher, []),
+      worker(Subscriber.Supervisor, [])
     ]
 
     opts = [strategy: :one_for_one, name: Ku.Supervisor]

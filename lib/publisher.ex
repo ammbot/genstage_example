@@ -1,5 +1,5 @@
 defmodule Publisher do
-  alias Experimental.GenStage
+  alias Experimental.{DynamicSupervisor, GenStage}
   alias Experimental.GenStage.BroadcastDispatcher
   use GenStage
 
@@ -28,7 +28,7 @@ defmodule Publisher do
   """
   @spec subscribe(Regex.t, fun()) :: term
   def subscribe(key, callback) do
-    Subscriber.start_link key, callback
+    DynamicSupervisor.start_child(Subscriber.Supervisor, [key, callback])
   end
 
   def init(:ok) do

@@ -16,7 +16,7 @@ defmodule Subscriber do
     {:consumer, state, subscribe_to: [Publisher]}
   end
 
-  def handle_events(events, from, state) do
+  def handle_events(events, _from, state) do
     for event <- events do
       if Regex.match?(state.routing_key, event.routing_key) do
         apply(state.callback, [event])

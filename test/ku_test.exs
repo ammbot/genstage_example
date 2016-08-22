@@ -25,23 +25,6 @@ defmodule KuTest do
               dispatcher_mod: BroadcastDispatcher} = :sys.get_state(publisher)
   end
 
-  test "subscribe should start Subscriber as a consumer to Publisher" do
-    routing_key = ~r/^foo\.bar$/
-    callback = &IO.inspect/1
-
-    publisher_state = :sys.get_state Publisher
-    assert length(Map.keys publisher_state.consumers) == 0
-
-    {:ok, subscriber} = Publisher.subscribe routing_key, callback
-    subscriber_state = :sys.get_state subscriber
-    assert subscriber_state.type == :consumer
-    assert subscriber_state.state.callback == callback
-    assert subscriber_state.state.routing_key == routing_key
-
-    publisher_state = :sys.get_state Publisher
-    assert length(Map.keys publisher_state.consumers) == 1
-  end
-
   test "publish deliver to correct subscriber" do
 
     Publisher.subscribe ~r/^foo\.bar$/, &MyModule.do_it/1
@@ -51,12 +34,12 @@ defmodule KuTest do
     Publisher.publish "foo.lala", %{bam: "boo"}, %{optional: "metadata object", to: self}
     Publisher.publish "unhandled_key", %{boom: "biim"}, %{optional: "metadata object", to: self}
 
-    assert_receive %{body: %{bar: "baz"}, metadata: %{optional: "metadata object", to: self}, from: MyModule.Doit}
-    assert_receive %{body: %{bar: "baz"}, metadata: %{optional: "metadata object", to: self}, from: MyOtherModule.AlsoDoIt}
-    refute_receive %{body: %{bam: "boo"}, metadata: %{optional: "metadata object", to: self}, from: MyModule.Doit}
-    assert_receive %{body: %{bam: "boo"}, metadata: %{optional: "metadata object", to: self}, from: MyOtherModule.AlsoDoIt}
+    assert_receive %{body: %{bar: "baz"}, metadata: %{optional: "metadata object"}, from: MyModule.Doit}
+    assert_receive %{body: %{bar: "baz"}, metadata: %{optional: "metadata object"}, from: MyOtherModule.AlsoDoIt}
+    refute_receive %{body: %{bam: "boo"}, metadata: %{optional: "metadata object"}, from: MyModule.Doit}
+    assert_receive %{body: %{bam: "boo"}, metadata: %{optional: "metadata object"}, from: MyOtherModule.AlsoDoIt}
 
-    refute_receive %{body: %{boom: "biim"}, metadata: %{optional: "metadata object", to: self}, from: MyModule.Doit}
-    refute_receive %{body: %{boom: "biim"}, metadata: %{optional: "metadata object", to: self}, from: MyOtherModule.AlsoDoIt}
+    refute_receive %{body: %{boom: "biim"}, metadata: %{optional: "metadata object"}, from: MyModule.Doit}
+    refute_receive %{body: %{boom: "biim"}, metadata: %{optional: "metadata object"}, from: MyOtherModule.AlsoDoIt}
   end
 end
