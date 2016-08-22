@@ -6,6 +6,7 @@ defmodule Ku do
 
     children = [
       worker(Publisher, []),
+      worker(Log, []),
       worker(Subscriber.Supervisor, [])
     ]
 

@@ -42,4 +42,11 @@ defmodule KuTest do
     refute_receive %{body: %{boom: "biim"}, metadata: %{optional: "metadata object"}, from: MyModule.Doit}
     refute_receive %{body: %{boom: "biim"}, metadata: %{optional: "metadata object"}, from: MyOtherModule.AlsoDoIt}
   end
+
+  test "logger should keep log and can retrieve it" do
+    Publisher.publish "some_key", %{amm: "bot"}
+    assert %Publisher.Msg{body: %{amm: "bot"},
+                          metadata: %{},
+                          routing_key: "some_key"} in Log.get_log
+  end
 end
