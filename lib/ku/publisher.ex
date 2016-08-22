@@ -1,4 +1,9 @@
-defmodule Publisher do
+defmodule Ku.Publisher do
+  @moduledoc """
+  Publisher using a GenStage for implementing a GenEvent manager.
+  Can add Subscriber by calling publish/2 or publish/3
+  """
+
   alias Experimental.{DynamicSupervisor, GenStage}
   alias Experimental.GenStage.BroadcastDispatcher
   use GenStage
@@ -16,6 +21,10 @@ defmodule Publisher do
 
   @doc """
   Publish a message
+
+  ## Example
+
+      Ku.publish "foo.bar", %{bar: "baz"}, %{optional: "metadata object"}
   """
   @spec publish(Regex.t, Map.t, Map.t, non_neg_integer()) :: term
   def publish(key, body, optional \\ %{}, timeout \\ 5000) do
@@ -25,10 +34,14 @@ defmodule Publisher do
 
   @doc """
   Subscribe new pattern
+
+  ## Example
+
+      Ku.subscribe ~r/^foo\.bar$/, &MyModule.do_it/1
   """
   @spec subscribe(Regex.t, fun()) :: term
   def subscribe(key, callback) do
-    DynamicSupervisor.start_child(Subscriber.Supervisor, [key, callback])
+    DynamicSupervisor.start_child(Ku.Subscriber.Supervisor, [key, callback])
   end
 
   def init(:ok) do

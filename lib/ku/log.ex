@@ -1,8 +1,9 @@
-defmodule Log do
+defmodule Ku.Log do
   @moduledoc """
   Log subscribe to Publisher and keep every events in state.
   """
   alias Experimental.GenStage
+  alias Ku.Publisher
   use GenStage
 
   def start_link do

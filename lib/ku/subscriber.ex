@@ -1,6 +1,12 @@
-defmodule Subscriber do
+defmodule Ku.Subscriber do
+  @moduledoc """
+  Subscriber will receive event from Publisher
+  and if routing_key is matched, callback will be triggered.
+  """
   alias Experimental.GenStage
+  alias Ku.Publisher
   use GenStage
+  require Logger
 
   defstruct routing_key: nil, callback: nil
 

@@ -1,4 +1,8 @@
-defmodule Subscriber.Supervisor do
+defmodule Ku.Subscriber.Supervisor do
+  @moduledoc """
+  A dynamic supervisor that will
+  spawn subscriber when someone calling Ku.Publisher.subcribe/3.
+  """
   alias Experimental.DynamicSupervisor
   use DynamicSupervisor
 
@@ -8,7 +12,7 @@ defmodule Subscriber.Supervisor do
 
   def init([]) do
     children = [
-      worker(Subscriber, [])
+      worker(Ku.Subscriber, [])
     ]
     {:ok, children, strategy: :one_for_one}
   end

@@ -16,7 +16,7 @@ defmodule KuTest do
   use ExUnit.Case
   alias Experimental.GenStage
   alias Experimental.GenStage.BroadcastDispatcher
-  doctest Ku
+  alias Ku.{Publisher, Subscriber, Log}
 
   test "should start as register Publisher process" do
     publisher = Process.whereis(Publisher)
