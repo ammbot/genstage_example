@@ -10,6 +10,14 @@ defmodule Publisher do
     GenStage.start_link __MODULE__, :ok, name: __MODULE__
   end
 
+  @doc """
+  Subscribe new pattern
+  """
+  @spec subscribe(Regex.t, fun()) :: {:ok, pid()} | {:error, any()}
+  def subscribe(topic, callback) do
+    Subscriber.start_link topic, callback
+  end
+
   def init(:ok) do
     {:producer, {:queue.new, 0}, dispatcher: BroadcastDispatcher}
   end
