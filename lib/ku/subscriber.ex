@@ -3,7 +3,7 @@ defmodule Ku.Subscriber do
   Subscriber will receive event from Publisher
   and if routing_key is matched, callback will be triggered.
   """
-  alias Experimental.GenStage
+  alias Experimental.{DynamicSupervisor, GenStage}
   alias Ku.Publisher
   use GenStage
   require Logger
@@ -15,6 +15,18 @@ defmodule Ku.Subscriber do
   """
   def start_link(key, callback) do
     GenStage.start_link __MODULE__, {key, callback}
+  end
+
+  @doc """
+  Subscribe new pattern
+
+  ## Example
+
+      Ku.subscribe ~r/^foo\.bar$/, &MyModule.do_it/1
+  """
+  @spec subscribe(Regex.t, fun()) :: term
+  def subscribe(key, callback) do
+    DynamicSupervisor.start_child(Ku.Subscriber.Supervisor, [key, callback])
   end
 
   def init({key, callback}) do

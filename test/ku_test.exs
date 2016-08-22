@@ -16,7 +16,7 @@ defmodule KuTest do
   use ExUnit.Case
   alias Experimental.GenStage
   alias Experimental.GenStage.BroadcastDispatcher
-  alias Ku.{Publisher, Subscriber, Log}
+  alias Ku.Publisher
 
   test "should start as register Publisher process" do
     publisher = Process.whereis(Publisher)
@@ -27,12 +27,12 @@ defmodule KuTest do
 
   test "publish deliver to correct subscriber" do
 
-    Publisher.subscribe ~r/^foo\.bar$/, &MyModule.do_it/1
-    Publisher.subscribe ~r/^foo\.*/, &MyOtherModule.also_do_it/1
+    Ku.subscribe ~r/^foo\.bar$/, &MyModule.do_it/1
+    Ku.subscribe ~r/^foo\.*/, &MyOtherModule.also_do_it/1
 
-    Publisher.publish "foo.bar", %{bar: "baz"}, %{optional: "metadata object", to: self}
-    Publisher.publish "foo.lala", %{bam: "boo"}, %{optional: "metadata object", to: self}
-    Publisher.publish "unhandled_key", %{boom: "biim"}, %{optional: "metadata object", to: self}
+    Ku.publish "foo.bar", %{bar: "baz"}, %{optional: "metadata object", to: self}
+    Ku.publish "foo.lala", %{bam: "boo"}, %{optional: "metadata object", to: self}
+    Ku.publish "unhandled_key", %{boom: "biim"}, %{optional: "metadata object", to: self}
 
     assert_receive %{body: %{bar: "baz"}, metadata: %{optional: "metadata object"}, from: MyModule.Doit}
     assert_receive %{body: %{bar: "baz"}, metadata: %{optional: "metadata object"}, from: MyOtherModule.AlsoDoIt}
@@ -44,9 +44,9 @@ defmodule KuTest do
   end
 
   test "logger should keep log and can retrieve it" do
-    Publisher.publish "some_key", %{amm: "bot"}
+    Ku.publish "some_key", %{amm: "bot"}
     assert %Publisher.Msg{body: %{amm: "bot"},
                           metadata: %{},
-                          routing_key: "some_key"} in Log.get_log
+                          routing_key: "some_key"} in Ku.get_log
   end
 end

@@ -4,7 +4,7 @@ defmodule Ku.Publisher do
   Can add Subscriber by calling publish/2 or publish/3
   """
 
-  alias Experimental.{DynamicSupervisor, GenStage}
+  alias Experimental.GenStage
   alias Experimental.GenStage.BroadcastDispatcher
   use GenStage
 
@@ -30,18 +30,6 @@ defmodule Ku.Publisher do
   def publish(key, body, optional \\ %{}, timeout \\ 5000) do
     msg = {:publish, key, body, optional}
     GenStage.call __MODULE__, msg, timeout
-  end
-
-  @doc """
-  Subscribe new pattern
-
-  ## Example
-
-      Ku.subscribe ~r/^foo\.bar$/, &MyModule.do_it/1
-  """
-  @spec subscribe(Regex.t, fun()) :: term
-  def subscribe(key, callback) do
-    DynamicSupervisor.start_child(Ku.Subscriber.Supervisor, [key, callback])
   end
 
   def init(:ok) do
