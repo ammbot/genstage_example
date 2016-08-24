@@ -36,11 +36,22 @@ defmodule Ku.Subscriber do
 
   def handle_events(events, _from, state) do
     for event <- events do
-      if Regex.match?(state.routing_key, event.routing_key) do
+      if match_routing_key(state.routing_key, event.routing_key) do
         apply(state.callback, [event])
       end
     end
     {:noreply, [], state}
   end
+
+  def match_routing_key(pattern_key, incoming_key) do
+    k1 = String.split pattern_key, "."
+    k2 = String.split incoming_key, "."
+    do_match_routing_key k1, k2
+  end
+
+  defp do_match_routing_key([], []), do: true
+  defp do_match_routing_key(["*"|t1], [_|t2]), do: do_match_routing_key(t1, t2)
+  defp do_match_routing_key([h|t1], [h|t2]), do: do_match_routing_key(t1, t2)
+  defp do_match_routing_key(_, _), do: false
 end
 

@@ -27,8 +27,8 @@ defmodule KuTest do
 
   test "publish deliver to correct subscriber" do
 
-    Ku.subscribe ~r/^foo\.bar$/, &MyModule.do_it/1
-    Ku.subscribe ~r/^foo\.*/, &MyOtherModule.also_do_it/1
+    Ku.subscribe "foo.bar", &MyModule.do_it/1
+    Ku.subscribe "foo.*", &MyOtherModule.also_do_it/1
 
     Ku.publish "foo.bar", %{bar: "baz"}, %{optional: "metadata object", to: self}
     Ku.publish "foo.lala", %{bam: "boo"}, %{optional: "metadata object", to: self}
@@ -48,5 +48,16 @@ defmodule KuTest do
     assert %Publisher.Msg{body: %{amm: "bot"},
                           metadata: %{},
                           routing_key: "some_key"} in Ku.get_log
+  end
+
+  test "match_routing_key" do
+    assert Ku.Subscriber.match_routing_key "foo.bar", "foo.bar"
+    refute Ku.Subscriber.match_routing_key "foo.baz", "foo.bar"
+
+    assert Ku.Subscriber.match_routing_key "foo.*", "foo.lala"
+    refute Ku.Subscriber.match_routing_key "foo.*", "bar.baz"
+
+    assert Ku.Subscriber.match_routing_key "foo.*.bar", "foo.foo.bar"
+    refute Ku.Subscriber.match_routing_key "foo.*.bar", "foo.bar.baz"
   end
 end
